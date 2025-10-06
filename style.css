@@ -1,31 +1,269 @@
-.safejoy-btn {
-    background: #ff69b4;
+/* Submit Button */
+.safejoy-open-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
-    padding: 10px 20px;
+    padding: 14px 32px;
     border: none;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
+.safejoy-open-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.safejoy-open-btn:active {
+    transform: translateY(0);
+}
+
+/* Modal Overlay */
 .safejoy-modal {
     display: none;
     position: fixed;
-    z-index: 9999;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
+    z-index: 999999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Content Box */
 .safejoy-modal-content {
-    background: #fff;
-    margin: 10% auto;
-    padding: 20px;
-    width: 400px;
+    background: #ffffff;
+    margin: 5% auto;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: slideDown 0.3s ease;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Close Button */
+.safejoy-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.safejoy-close:hover {
+    color: #333;
+    background: #f0f0f0;
+    transform: rotate(90deg);
+}
+
+/* Modal Header */
+.safejoy-modal-content h2 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.safejoy-form-title {
+    color: #667eea;
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Form Styling */
+.safejoy-form {
+    margin-top: 20px;
+}
+
+.safejoy-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.safejoy-form input[type="text"],
+.safejoy-form input[type="url"],
+.safejoy-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.safejoy-form input[type="text"]:focus,
+.safejoy-form input[type="url"]:focus,
+.safejoy-form textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.safejoy-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Links Container */
+.safejoy-links {
+    margin-bottom: 12px;
+}
+
+.safejoy-links input[type="url"] {
+    margin-bottom: 12px;
+}
+
+/* Add Link Button */
+.safejoy-add-link {
+    background: #f8f9fa;
+    color: #667eea;
+    border: 2px dashed #667eea;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.safejoy-add-link:hover {
+    background: #667eea;
+    color: #fff;
+    border-style: solid;
+}
+
+/* Submit Button */
+.safejoy-submit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.safejoy-submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.safejoy-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Messages */
+.safejoy-message {
+    margin-top: 20px;
+}
+
+.safejoy-success {
+    color: #10b981;
+    background: #d1fae5;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+    margin: 0;
+}
+
+.safejoy-error {
+    color: #ef4444;
+    background: #fee2e2;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #ef4444;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .safejoy-modal-content {
+        margin: 10% auto;
+        padding: 30px 20px;
+        width: 95%;
+    }
+    
+    .safejoy-modal-content h2 {
+        font-size: 22px;
+    }
+    
+    .safejoy-open-btn,
+    .safejoy-submit-btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}
+
+/* Scrollbar Styling for Modal */
+.safejoy-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.safejoy-modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
     border-radius: 10px;
 }
 
-#safejoy-close {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
+.safejoy-modal-content::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+.safejoy-modal-content::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
 }
