@@ -69,14 +69,6 @@ Submissions are saved in the WordPress admin dashboard, organized by form.
 
         You’ll see name, description, links, and which form the submission came from.
 
-## File Structure
-
-safejoy-dynamic-submissions/
-├── safejoy-dynamic-submissions.php   # Main plugin file
-├── script.js                         # Frontend JS (modal + AJAX)
-├── style.css                         # Modal + button styling
-└── README.md                         # This documentation
-
 ## Shortcode Examples
 
 [safejoy form="donations"]
