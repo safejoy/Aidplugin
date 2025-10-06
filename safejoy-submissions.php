@@ -50,15 +50,25 @@ class SafeJoyDynamic {
         ]);
     }
 
-    public function register_dynamic_shortcodes() {
-        $forms = get_posts(['post_type' => 'safejoy_form','numberposts' => -1]);
-        foreach ($forms as $form) {
-            $shortcode = 'safejoy=' . sanitize_title($form->post_title);
-            add_shortcode($shortcode, function() use ($form) {
-                return $this->render_form_button($form->post_title);
-            });
+public function register_dynamic_shortcodes() {
+    add_shortcode('safejoy', function($atts) {
+        $atts = shortcode_atts(['form' => ''], $atts);
+        $form_title = sanitize_text_field($atts['form']);
+
+        if (!$form_title) {
+            return '<p style="color:red;">Safe Joy: Missing form attribute.</p>';
         }
-    }
+
+        // Check if form exists
+        $form = get_page_by_title($form_title, OBJECT, 'safejoy_form');
+        if (!$form) {
+            return '<p style="color:red;">Safe Joy form not found: '.esc_html($form_title).'</p>';
+        }
+
+        return $this->render_form_button($form_title);
+    });
+}
+
 
     public function enqueue_assets() {
         wp_enqueue_style('safejoy-style', plugin_dir_url(__FILE__) . 'style.css');
