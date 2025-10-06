@@ -1,26 +1,43 @@
 <?php
 /**
- * Plugin Name: Safe Joy Submissions
- * Description: Allows users to submit name, description, and multiple links via a pop-up form. Admins can view all submissions in the dashboard.
- * Version: 1.1
+ * Plugin Name: Safe Joy Dynamic Submissions
+ * Description: Create custom Safe Joy forms via shortcode. Users submit info, admins see results in dashboard.
+ * Version: 2.0
  * Author: Safe Joy
  */
 
 if (!defined('ABSPATH')) exit;
 
-class SafeJoySubmissions {
+class SafeJoyDynamic {
     public function __construct() {
-        add_action('init', [$this, 'register_submission_post_type']);
+        // Register CPTs
+        add_action('init', [$this, 'register_cpts']);
+        // Register dynamic shortcodes
+        add_action('init', [$this, 'register_dynamic_shortcodes']);
+        // Enqueue assets
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
-        add_shortcode('safejoy_submit', [$this, 'render_button']);
-        add_action('wp_footer', [$this, 'render_form']);
+        // AJAX
         add_action('wp_ajax_safejoy_submit_form', [$this, 'handle_submission']);
         add_action('wp_ajax_nopriv_safejoy_submit_form', [$this, 'handle_submission']);
-        add_action('admin_menu', [$this, 'add_admin_menu']);
-        add_action('add_meta_boxes', [$this, 'add_links_metabox']);
+        // Admin columns
+        add_filter('manage_safejoy_submission_posts_columns', [$this, 'add_submission_columns']);
+        add_action('manage_safejoy_submission_posts_custom_column', [$this, 'render_submission_columns'], 10, 2);
     }
 
-    public function register_submission_post_type() {
+    public function register_cpts() {
+        // Forms
+        register_post_type('safejoy_form', [
+            'labels' => [
+                'name' => 'Safe Joy Forms',
+                'singular_name' => 'Safe Joy Form'
+            ],
+            'public' => false,
+            'show_ui' => true,
+            'supports' => ['title'],
+            'menu_icon' => 'dashicons-forms'
+        ]);
+
+        // Submissions
         register_post_type('safejoy_submission', [
             'labels' => [
                 'name' => 'Safe Joy Submissions',
@@ -28,9 +45,19 @@ class SafeJoySubmissions {
             ],
             'public' => false,
             'show_ui' => true,
-            'supports' => ['title', 'editor'],
+            'supports' => ['title','editor'],
             'menu_icon' => 'dashicons-feedback'
         ]);
+    }
+
+    public function register_dynamic_shortcodes() {
+        $forms = get_posts(['post_type' => 'safejoy_form','numberposts' => -1]);
+        foreach ($forms as $form) {
+            $shortcode = 'safejoy=' . sanitize_title($form->post_title);
+            add_shortcode($shortcode, function() use ($form) {
+                return $this->render_form_button($form->post_title);
+            });
+        }
     }
 
     public function enqueue_assets() {
@@ -39,34 +66,35 @@ class SafeJoySubmissions {
         wp_localize_script('safejoy-script', 'safejoy_ajax', ['ajax_url' => admin_url('admin-ajax.php')]);
     }
 
-    public function render_button() {
-        return '<button id="safejoy-open-form" class="safejoy-btn">Submit Info</button>';
-    }
+    private function render_form_button($form_title) {
+        ob_start(); ?>
+        <button class="safejoy-open-btn" data-form="<?php echo esc_attr($form_title); ?>">Submit Info</button>
 
-    public function render_form() { ?>
-        <div id="safejoy-modal" class="safejoy-modal">
+        <div class="safejoy-modal" style="display:none;">
             <div class="safejoy-modal-content">
-                <span id="safejoy-close">&times;</span>
-                <h2>Submit Your Info</h2>
-                <form id="safejoy-form">
+                <span class="safejoy-close">&times;</span>
+                <h2>Submit Your Info (<?php echo esc_html($form_title); ?>)</h2>
+                <form class="safejoy-form" data-form="<?php echo esc_attr($form_title); ?>">
                     <input type="text" name="name" placeholder="Your Name" required><br>
                     <textarea name="description" placeholder="Description" required></textarea><br>
-
-                    <div id="safejoy-links">
+                    <div class="safejoy-links">
                         <input type="url" name="links[]" placeholder="Helpful Link (https://...)" required><br>
                     </div>
-                    <button type="button" id="add-link">+ Add another link</button><br><br>
-
+                    <button type="button" class="add-link">+ Add another link</button><br><br>
+                    <input type="hidden" name="form_title" value="<?php echo esc_attr($form_title); ?>">
                     <button type="submit">Submit</button>
                 </form>
-                <div id="safejoy-message"></div>
+                <div class="safejoy-message"></div>
             </div>
         </div>
-    <?php }
+        <?php
+        return ob_get_clean();
+    }
 
     public function handle_submission() {
         $name = sanitize_text_field($_POST['name']);
         $description = sanitize_textarea_field($_POST['description']);
+        $form_title = sanitize_text_field($_POST['form_title']);
         $links_raw = isset($_POST['links']) ? (array) $_POST['links'] : [];
         $links = array_map('esc_url_raw', array_filter($links_raw));
 
@@ -74,52 +102,30 @@ class SafeJoySubmissions {
             'post_type' => 'safejoy_submission',
             'post_title' => $name,
             'post_content' => $description,
-            'post_status' => 'publish'
+            'post_status' => 'publish',
+            'meta_input' => [
+                'links' => $links,
+                'form_title' => $form_title
+            ]
         ]);
 
         if ($post_id) {
-            update_post_meta($post_id, 'links', $links);
             wp_send_json_success("Thank you, your info was submitted!");
         } else {
             wp_send_json_error("Submission failed. Please try again.");
         }
     }
 
-    public function add_admin_menu() {
-        add_menu_page(
-            'Safe Joy Submissions',
-            'Safe Joy Submissions',
-            'manage_options',
-            'edit.php?post_type=safejoy_submission',
-            '',
-            'dashicons-feedback'
-        );
+    public function add_submission_columns($columns) {
+        $columns['form_title'] = 'Form';
+        return $columns;
     }
 
-    // Show links in a metabox in admin
-    public function add_links_metabox() {
-        add_meta_box(
-            'safejoy_links_box',
-            'Submitted Links',
-            [$this, 'render_links_metabox'],
-            'safejoy_submission',
-            'normal',
-            'high'
-        );
-    }
-
-    public function render_links_metabox($post) {
-        $links = get_post_meta($post->ID, 'links', true);
-        if (!empty($links) && is_array($links)) {
-            echo "<ul>";
-            foreach ($links as $link) {
-                echo "<li><a href='" . esc_url($link) . "' target='_blank'>" . esc_html($link) . "</a></li>";
-            }
-            echo "</ul>";
-        } else {
-            echo "<p>No links submitted.</p>";
+    public function render_submission_columns($column, $post_id) {
+        if ($column === 'form_title') {
+            echo esc_html(get_post_meta($post_id, 'form_title', true));
         }
     }
 }
 
-new SafeJoySubmissions();
+new SafeJoyDynamic();
