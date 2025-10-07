@@ -403,17 +403,17 @@ class SafeJoyDynamic {
             <div class="safejoy-modal-content">
                 <span class="safejoy-close">&times;</span>
                 <h2>Submit Your Info</h2>
-                <p class="safejoy-form-title"><?php echo esc_html($form_title); ?></p>
-                <form class="safejoy-form" data-form="<?php echo esc_attr($form_title); ?>">
-                    <label>Your Name *</label>
+                //<p class="safejoy-form-title"><?php echo esc_html($form_title); ?></p>
+                 <form class="safejoy-form" data-form="<?php echo esc_attr($form_title); ?>">
+                    <label>Your Name <p style="color:red;">*</label>
                     <input type="text" name="name" placeholder="Enter your name" required>
                     
-                    <label>Description *</label>
-                    <textarea name="description" placeholder="Tell us about your cause or need..." required rows="5"></textarea>
+                    <label>Description <p style="color:red;">*</label>
+                    <textarea name="description" placeholder="Tell us about your cause or need..." required rows="6"></textarea>
                     
-                    <label>Helpful Links</label>
+                    <label>Helpful Links <p style="color:red;">*</label>
                     <div class="safejoy-links">
-                        <input type="url" name="links[]" placeholder="https://example.com" required>
+                        <input type="url" name="links[]" placeholder="https://example.com - https:// or http:// required" required>
                     </div>
                     <button type="button" class="safejoy-add-link">+ Add Another Link</button>
                     
